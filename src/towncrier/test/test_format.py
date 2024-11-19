@@ -477,7 +477,9 @@ Features
                     0,
                 ): (
                     "this fragment has a trailing code block::\n\n"
-                    "def foo(): ...\n\n   \n    def bar(): ..."
+                    "    def foo(): ...\n\n"
+                    "   \n"
+                    "    def bar(): ..."
                 ),
                 (
                     "2",
@@ -485,8 +487,9 @@ Features
                     0,
                 ): (
                     "this block is not trailing::\n\n"
-                    "def foo(): ...\n    def bar(): ..."
-                    "\n\nso we can append the issue number directly after this"
+                    "    def foo(): ...\n"
+                    "    def bar(): ...\n\n"
+                    "so we can append the issue number directly after this"
                 ),
             }
         }
