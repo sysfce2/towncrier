@@ -62,7 +62,6 @@ def _get_default_compare_branch(branches: Container[str]) -> str | None:
     "staged",
     is_flag=True,
     default=False,
-    metavar="STAGED",
     help="Include staged files as part of the branch checked in the --compare-with",
 )
 def _main(
