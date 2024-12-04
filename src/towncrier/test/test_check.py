@@ -214,7 +214,7 @@ class TestChecker(TestCase):
             )
 
     def test_fragment_exists_and_staged(self):
-        """A fragment that exists but is marked as check=False is ignored by the check."""
+        """A fragment exists and is added in staging. Pass only if staging on the command line"""
         runner = CliRunner()
 
         with runner.isolated_filesystem():
@@ -228,16 +228,13 @@ class TestChecker(TestCase):
                 "[[tool.towncrier.type]]\n"
                 'directory = "sut"\n'
                 'name = "System Under Test"\n'
-                "showcontent = true\n"
-                "check=false\n",
+                "showcontent = true\n",
             )
 
             file_path = "foo/somefile.py"
             write(file_path, "import os")
 
-            fragment_path = Path("foo/newsfragments/1234.sut").absolute()
-            write(fragment_path, "Not really a fragment")
-            commit("add some files that mean we should have a fragment")
+            commit("add some files for test initialization")
 
             fragment_path = Path("foo/newsfragments/1234.feature").absolute()
             write(fragment_path, "Adds gravity back")
