@@ -1,0 +1,1 @@
+new `--staged` parameter for the `check` to included staged files as part of confirming a news file exists

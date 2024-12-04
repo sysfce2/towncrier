@@ -41,6 +41,15 @@ def commit(message):
     call(["git", "commit", "-m", message])
 
 
+def stage():
+    """Stage a commit to the repo in the current working directory
+
+    There must be uncommitted changes otherwise git will complain:
+    "nothing to commit, working tree clean"
+    """
+    call(["git", "add", "."])
+
+
 def initial_commit(branch="main"):
     """
     Create a git repo, configure it and make an initial commit
@@ -203,6 +212,44 @@ class TestChecker(TestCase):
                 ),
                 (result.output, str(fragment_path)),
             )
+
+    def test_fragment_exists_and_staged(self):
+        """A fragment that exists but is marked as check=False is ignored by the check."""
+        runner = CliRunner()
+
+        with runner.isolated_filesystem():
+            create_project(
+                "pyproject.toml",
+                main_branch="master",
+                extra_config="[[tool.towncrier.type]]\n"
+                'directory = "feature"\n'
+                'name = "Features"\n'
+                "showcontent = true\n"
+                "[[tool.towncrier.type]]\n"
+                'directory = "sut"\n'
+                'name = "System Under Test"\n'
+                "showcontent = true\n"
+                "check=false\n",
+            )
+
+            file_path = "foo/somefile.py"
+            write(file_path, "import os")
+
+            fragment_path = Path("foo/newsfragments/1234.sut").absolute()
+            write(fragment_path, "Not really a fragment")
+            commit("add some files that mean we should have a fragment")
+
+            fragment_path = Path("foo/newsfragments/1234.feature").absolute()
+            write(fragment_path, "Adds gravity back")
+            stage()
+
+            result = runner.invoke(towncrier_check, ["--compare-with", "master"])
+
+            self.assertEqual(1, result.exit_code)
+            result = runner.invoke(
+                towncrier_check, ["--staged", "--compare-with", "master"]
+            )
+            self.assertEqual(0, result.exit_code)
 
     def test_fragment_exists_and_in_check(self):
         """
