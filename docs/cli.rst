@@ -124,7 +124,7 @@ By default, ``towncrier`` compares the current branch against ``origin/main`` (a
 
 .. option:: --staged
 
-   Include files that have been staged for commit when checking for news fragments
+   Include files that have been staged for commit when checking for news fragments::
 
       $ towncrier check --staged
       $ towncrier check --staged --compare-with origin/trunk

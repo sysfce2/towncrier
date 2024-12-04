@@ -63,7 +63,7 @@ def _get_default_compare_branch(branches: Container[str]) -> str | None:
     is_flag=True,
     default=False,
     metavar="STAGED",
-    help="include staged files as part of the branch checked in the --compare-with",
+    help="Include staged files as part of the branch checked in the --compare-with",
 )
 def _main(
     compare_with: str | None, directory: str | None, config: str | None, staged: bool
