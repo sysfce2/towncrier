@@ -6,7 +6,7 @@ import os.path
 import warnings
 
 from pathlib import Path
-from subprocess import call
+from subprocess import check_call
 
 from click.testing import CliRunner
 from twisted.trial.unittest import TestCase
@@ -28,7 +28,7 @@ def create_project(
     setup_simple_project(pyproject_path=pyproject_path, extra_config=extra_config)
     Path("foo/newsfragments/123.feature").write_text("Adds levitation")
     initial_commit(branch=main_branch)
-    call(["git", "checkout", "-b", "otherbranch"])
+    check_call(["git", "checkout", "-b", "otherbranch"])
 
 
 def commit(message):
@@ -37,8 +37,8 @@ def commit(message):
     There must be uncommitted changes otherwise git will complain:
     "nothing to commit, working tree clean"
     """
-    call(["git", "add", "."])
-    call(["git", "commit", "-m", message])
+    check_call(["git", "add", "."])
+    check_call(["git", "commit", "-m", message])
 
 
 def stage():
@@ -47,7 +47,7 @@ def stage():
     There must be uncommitted changes otherwise git will complain:
     "nothing to commit, working tree clean"
     """
-    call(["git", "add", "."])
+    check_call(["git", "add", "."])
 
 
 def initial_commit(branch="main"):
@@ -59,11 +59,11 @@ def initial_commit(branch="main"):
     """
     # --initial-branch is explicitly set to `main` because
     # git has deprecated the default branch name.
-    call(["git", "init", f"--initial-branch={branch}"])
+    check_call(["git", "init", f"--initial-branch={branch}"])
     # Without ``git config` user.name and user.email `git commit` fails
     # unless the settings are set globally
-    call(["git", "config", "user.name", "user"])
-    call(["git", "config", "user.email", "user@example.com"])
+    check_call(["git", "config", "user.name", "user"])
+    check_call(["git", "config", "user.email", "user@example.com"])
     commit("Initial Commit")
 
 
@@ -165,8 +165,8 @@ class TestChecker(TestCase):
             with open(file_path, "w") as f:
                 f.write("import os")
 
-            call(["git", "add", "foo/somefile.py"])
-            call(["git", "commit", "-m", "add a file"])
+            check_call(["git", "add", "foo/somefile.py"])
+            check_call(["git", "commit", "-m", "add a file"])
 
             result = runner.invoke(towncrier_check, ["--compare-with", "master"])
 
@@ -301,8 +301,8 @@ class TestChecker(TestCase):
             with open(fragment_path, "w") as f:
                 f.write("Adds gravity back")
 
-            call(["git", "add", fragment_path])
-            call(["git", "commit", "-m", "add a newsfragment"])
+            check_call(["git", "add", fragment_path])
+            check_call(["git", "commit", "-m", "add a newsfragment"])
 
             runner = CliRunner(mix_stderr=False)
             result = runner.invoke(towncrier_check, ["--compare-with", "master"])
@@ -357,16 +357,18 @@ class TestChecker(TestCase):
             commit("First release")
             # The news file is now created.
             self.assertIn("NEWS.rst", os.listdir("."))
-            call(["git", "checkout", "main"])
-            call(["git", "merge", "otherbranch", "-m", "Sync release in main branch."])
+            check_call(["git", "checkout", "main"])
+            check_call(
+                ["git", "merge", "otherbranch", "-m", "Sync release in main branch."]
+            )
 
             # We have a new feature branch that has a news fragment that
             # will be merged to the main branch.
-            call(["git", "checkout", "-b", "new-feature-branch"])
+            check_call(["git", "checkout", "-b", "new-feature-branch"])
             write("foo/newsfragments/456.feature", "Foo the bar")
             commit("A feature in the second release.")
-            call(["git", "checkout", "main"])
-            call(
+            check_call(["git", "checkout", "main"])
+            check_call(
                 [
                     "git",
                     "merge",
@@ -377,7 +379,7 @@ class TestChecker(TestCase):
             )
 
             # We now have the new release branch.
-            call(["git", "checkout", "-b", "next-release"])
+            check_call(["git", "checkout", "-b", "next-release"])
             runner.invoke(towncrier_build, ["--yes", "--version", "2.0"])
             commit("Second release")
 
@@ -439,7 +441,7 @@ class TestChecker(TestCase):
         (subproject1 / "changelog.d").mkdir(parents=True)
         (subproject1 / "changelog.d/123.feature").write_text("Adds levitation")
         initial_commit(branch=main_branch)
-        call(["git", "checkout", "-b", "otherbranch"])
+        check_call(["git", "checkout", "-b", "otherbranch"])
 
         # We add a code change but forget to add a news fragment.
         write(subproject1 / "foo/somefile.py", "import os")
